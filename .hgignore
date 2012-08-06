@@ -5,3 +5,4 @@ obj/*
 *.user
 *.orig
 TestResults
+Authy.Net.Tests/App.config
