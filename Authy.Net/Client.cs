@@ -51,7 +51,7 @@ namespace Authy.Net
                 //TODO add error handling and better JSON parsing
                 return new RegisterUserResult()
                 {
-                    Success = true,
+                    Status=  AuthyStatus.Success,
                     UserId = Regex.Match(Encoding.ASCII.GetString(response), "id\":([0-9]+)").Groups[1].Value
                 };
             });
@@ -87,7 +87,7 @@ namespace Authy.Net
                 }
 
                 //TODO parse out the json response into an error dictionary
-                return new TResult() { Success = false, RawResponse = body };
+                return new TResult() { Status = AuthyStatus.BadRequest, RawResponse = body };
             }
             finally
             {

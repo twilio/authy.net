@@ -11,9 +11,9 @@ namespace Authy.Net
     public class AuthyResult
     {
         /// <summary>
-        /// Boolean value indicating a succesful registration
+        /// The status of a request
         /// </summary>
-        public bool Success { get; set; }
+        public AuthyStatus Status { get; set; }
 
         /// <summary>
         /// The raw response returned from the API
