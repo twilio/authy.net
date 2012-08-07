@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
 using System.IO;
+using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Authy.Net
@@ -11,7 +9,12 @@ namespace Authy.Net
     /// <summary>
     /// Client for interacting with the Authy API
     /// </summary>
-    public class Client
+    /// <remarks>
+    /// This library is threadsafe since the only shared state is stored in private readonly fields.
+    /// 
+    /// Creating a single instance of the client and using it across multiple threads isn't a problem.
+    /// </remarks>
+    public class AuthyClient
     {
         private readonly string apiKey;
         private readonly bool test;
@@ -21,7 +24,7 @@ namespace Authy.Net
         /// </summary>
         /// <param name="apiKey">The api key used to access the rest api</param>
         /// <param name="test">indicates that the sandbox should be used</param>
-        public Client(string apiKey, bool test = false)
+        public AuthyClient(string apiKey, bool test = false)
         {
             this.apiKey = apiKey;
             this.test = test;
@@ -99,7 +102,19 @@ namespace Authy.Net
                 }
 
                 //TODO parse out the json response into an error dictionary
-                return new TResult() { Status = AuthyStatus.BadRequest, RawResponse = body };
+                var result = new TResult() { RawResponse = body };
+
+                switch (((HttpWebResponse)webex.Response).StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        result.Status = AuthyStatus.Unauthorized;
+                        break;
+                    default:
+                    case HttpStatusCode.BadRequest:
+                        result.Status = AuthyStatus.BadRequest;
+                        break;
+                }
+                return result;
             }
             finally
             {
