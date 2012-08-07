@@ -110,11 +110,11 @@ namespace Authy.Net
                         result.Status = AuthyStatus.ServiceUnavailable;
                         break;
                     case HttpStatusCode.Unauthorized:
-                        if (body.Contains("user has not configured this application"))
+                        if (body.Contains("user has not configured this application") || body.Contains("\"user\":\"user doesn\'t exist in this application\""))
                             result.Status = AuthyStatus.InvalidUser;
                         else if (body.Contains("Invalid API key"))
                             result.Status = AuthyStatus.InvalidApiKey;
-                        else if (body.Contains("\"token\":\"is invalid\""))
+                        else if (body.Contains("\"token\":\"is invalid"))
                             result.Status = AuthyStatus.InvalidToken;
                         else
                             throw new ApplicationException("An unknown error has occured");
@@ -130,7 +130,7 @@ namespace Authy.Net
                                 result.ErrorFields = result.ErrorFields | AuthyErrorFields.Email;
                             if (invalidCellphone)
                                 result.ErrorFields = result.ErrorFields | AuthyErrorFields.Cellphone;
-                           }
+                        }
                         else
                             throw new ApplicationException("An unknown error has occured");
                         break;
