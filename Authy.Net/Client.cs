@@ -51,7 +51,9 @@ namespace Authy.Net
                 //TODO add error handling and better JSON parsing
                 return new RegisterUserResult()
                 {
-                    Status=  AuthyStatus.Success,
+                    Status = AuthyStatus.Success,
+
+                    // TODO use real JSON parsing rather than a hackey regex
                     UserId = Regex.Match(Encoding.ASCII.GetString(response), "id\":([0-9]+)").Groups[1].Value
                 };
             });
@@ -64,7 +66,17 @@ namespace Authy.Net
         /// <param name="token">The token to verify</param>
         public VerifyTokenResult VerifyToken(string userId, string token)
         {
-            throw new NotImplementedException();
+            var url = string.Format("{0}/protected/json/verify/{1}/{2}?api_key={3}", this.baseUrl, token, userId, this.apiKey);
+            return this.Execute<VerifyTokenResult>(client =>
+            {
+                var response = client.DownloadString(url);
+
+                //TODO add error handling and better JSON parsing
+                return new VerifyTokenResult()
+                {
+                    Status = AuthyStatus.Success
+                };
+            });
         }
 
         //TODO, add support for the optional SMS API
