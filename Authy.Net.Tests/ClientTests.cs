@@ -19,6 +19,8 @@ namespace Authy.Net.Tests
     [TestClass]
     public class ClientTests
     {
+        const string badApiKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
         [TestMethod]
         public void Registration_Success()
         {
@@ -32,42 +34,69 @@ namespace Authy.Net.Tests
         [TestMethod]
         public void Registration_BadEmail()
         {
+            var client = this.GoodApiKeyClient;
+            var result = client.RegisterUser("test.com", "123-456-7890");
+            Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
+            Assert.Fail("More Specific email failure");
         }
 
         [TestMethod]
         public void Registration_BadPhoneNumber()
         {
+            var client = this.GoodApiKeyClient;
+            var result = client.RegisterUser("test@test.com", "aaa-456-7890");
+            Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
+            Assert.Fail("More Specific phone failure");
         }
 
         [TestMethod]
         public void Registration_BadEmailAndPhoneNumber()
         {
+            var client = this.GoodApiKeyClient;
+            var result = client.RegisterUser("test.com", "aaa-456-7890");
+            Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
+            Assert.Fail("More Specific email and phone failure");
         }
 
         [TestMethod]
         public void Registration_BadApiKey()
         {
+            var client = new Client(badApiKey, true);
+            var result = client.RegisterUser("test@test.com", "123-456-7890");
+            Assert.AreEqual(AuthyStatus.InvalidApiKey, result.Status);
         }
 
         [TestMethod]
         public void Verification_Success()
         {
-
+            var client = this.GoodApiKeyClient;
+            var result = client.VerifyToken("1", "0000000");
+            Assert.AreEqual(AuthyStatus.Success, result.Status);
         }
 
         [TestMethod]
         public void Verification_BadToken()
         {
+            var client = this.GoodApiKeyClient;
+            var result = client.VerifyToken("1", "1111111");
+            Assert.AreEqual(AuthyStatus.InvalidToken, result.Status);
         }
 
         [TestMethod]
         public void Verification_BadApiKey()
         {
+            var client = new Client(badApiKey, true);
+            var result = client.VerifyToken("1", "0000000");
+            Assert.AreEqual(AuthyStatus.InvalidApiKey, result.Status);
         }
 
         [TestMethod]
         public void Verification_InvalidUser()
         {
+            var client = new Client(badApiKey, true);
+            var result = client.VerifyToken("99999", "1111111");
+            Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
+            Assert.Fail("more specific message indicating the user was bad");
         }
 
         private Client GoodApiKeyClient
