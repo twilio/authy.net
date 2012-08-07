@@ -16,7 +16,7 @@ namespace Authy.Net
         public AuthyStatus Status { get; set; }
 
         /// <summary>
-        /// Fields that have problems
+        /// Fields that have problems.  This value may not be correct.  If possible, it might be best not to rely on them.
         /// </summary>
         public AuthyErrorFields ErrorFields { get; set; }
 

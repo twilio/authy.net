@@ -19,17 +19,11 @@ namespace Authy.Net
         /// </summary>
         BadRequest,
         /// <summary>
-        /// The provide API key is invalid
+        /// The request was unauthorized.
+        /// 
+        /// This could mean that an API key is wrong or it could mean that a token is incorrect.
         /// </summary>
-        InvalidApiKey,
-        /// <summary>
-        /// The token for the user is invalid
-        /// </summary>
-        InvalidToken,
-        /// <summary>
-        /// The user ID provided doesn't exist
-        /// </summary>
-        InvalidUser,
+        Unauthorized,
         /// <summary>
         /// The service is unavailable.  This usually means that the API call limit has been exceded
         /// </summary>

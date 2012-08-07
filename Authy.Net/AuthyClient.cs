@@ -110,29 +110,32 @@ namespace Authy.Net
                         result.Status = AuthyStatus.ServiceUnavailable;
                         break;
                     case HttpStatusCode.Unauthorized:
+                        result.Status = AuthyStatus.Unauthorized;
+
+                        // try to infer a more specific reason that an unauthorized error occured
                         if (body.Contains("user has not configured this application") || body.Contains("\"user\":\"user doesn\'t exist in this application\""))
-                            result.Status = AuthyStatus.InvalidUser;
+                            result.ErrorFields = result.ErrorFields | AuthyErrorFields.User;
                         else if (body.Contains("Invalid API key"))
-                            result.Status = AuthyStatus.InvalidApiKey;
+                            result.ErrorFields = result.ErrorFields | AuthyErrorFields.ApiKey;
                         else if (body.Contains("\"token\":\"is invalid"))
-                            result.Status = AuthyStatus.InvalidToken;
-                        else
-                            throw new ApplicationException("An unknown error has occured");
+                            result.ErrorFields = result.ErrorFields | AuthyErrorFields.Token;
+
                         break;
                     default:
                     case HttpStatusCode.BadRequest:
+                        result.Status = AuthyStatus.BadRequest;
+
                         var invalidEmail = body.Contains("\"email\":\"is invalid\"");
                         var invalidCellphone = body.Contains("must be a valid cellphone number.");
+
                         if (invalidCellphone || invalidEmail)
                         {
-                            result.Status = AuthyStatus.BadRequest;
                             if (invalidEmail)
                                 result.ErrorFields = result.ErrorFields | AuthyErrorFields.Email;
                             if (invalidCellphone)
                                 result.ErrorFields = result.ErrorFields | AuthyErrorFields.Cellphone;
                         }
-                        else
-                            throw new ApplicationException("An unknown error has occured");
+
                         break;
                 }
                 return result;
