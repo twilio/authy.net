@@ -121,10 +121,16 @@ namespace Authy.Net
                         break;
                     default:
                     case HttpStatusCode.BadRequest:
-                        if (body.Contains("\"email\":\"is invalid\""))
-                            result.Status = AuthyStatus.InvalidEmail;
-                        else if (body.Contains("must be a valid cellphone number."))
-                            result.Status = AuthyStatus.InvalidPhoneNumber;
+                        var invalidEmail = body.Contains("\"email\":\"is invalid\"");
+                        var invalidCellphone = body.Contains("must be a valid cellphone number.");
+                        if (invalidCellphone || invalidEmail)
+                        {
+                            result.Status = AuthyStatus.BadRequest;
+                            if (invalidEmail)
+                                result.ErrorFields = result.ErrorFields | AuthyErrorFields.Email;
+                            if (invalidCellphone)
+                                result.ErrorFields = result.ErrorFields | AuthyErrorFields.Cellphone;
+                           }
                         else
                             throw new ApplicationException("An unknown error has occured");
                         break;

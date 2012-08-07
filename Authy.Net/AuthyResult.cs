@@ -16,6 +16,11 @@ namespace Authy.Net
         public AuthyStatus Status { get; set; }
 
         /// <summary>
+        /// Fields that have problems
+        /// </summary>
+        public AuthyErrorFields ErrorFields { get; set; }
+
+        /// <summary>
         /// The raw response returned from the API
         /// </summary>
         public string RawResponse { get; set; }

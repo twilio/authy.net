@@ -37,7 +37,9 @@ namespace Authy.Net.Tests
         {
             var client = this.GoodApiKeyClient;
             var result = client.RegisterUser("test.com", "123-456-7891");
-            Assert.AreEqual(AuthyStatus.InvalidEmail, result.Status);
+            Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
+            Assert.IsFalse((result.ErrorFields & AuthyErrorFields.Cellphone) == AuthyErrorFields.Cellphone);
+            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.Email) == AuthyErrorFields.Email);
         }
 
         [TestMethod]
@@ -45,16 +47,19 @@ namespace Authy.Net.Tests
         {
             var client = this.GoodApiKeyClient;
             var result = client.RegisterUser("test@test.com", "aaa-456-7890");
-            Assert.AreEqual(AuthyStatus.InvalidPhoneNumber, result.Status);
+            Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
+            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.Cellphone) == AuthyErrorFields.Cellphone);
+            Assert.IsFalse((result.ErrorFields & AuthyErrorFields.Email) == AuthyErrorFields.Email);
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Registration_BadEmailAndPhoneNumber()
         {
             var client = this.GoodApiKeyClient;
             var result = client.RegisterUser("test.com", "aaa-456-7890");
-            //Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
-            Assert.Fail("Invalid Email and Phone Number");
+            Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
+            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.Cellphone) == AuthyErrorFields.Cellphone);
+            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.Email) == AuthyErrorFields.Email);
         }
 
         [TestMethod]
