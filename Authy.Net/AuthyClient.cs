@@ -106,12 +106,27 @@ namespace Authy.Net
 
                 switch (((HttpWebResponse)webex.Response).StatusCode)
                 {
+                    case HttpStatusCode.ServiceUnavailable:
+                        result.Status = AuthyStatus.ServiceUnavailable;
+                        break;
                     case HttpStatusCode.Unauthorized:
-                        result.Status = AuthyStatus.Unauthorized;
+                        if (body.Contains("user has not configured this application"))
+                            result.Status = AuthyStatus.InvalidUser;
+                        else if (body.Contains("Invalid API key"))
+                            result.Status = AuthyStatus.InvalidApiKey;
+                        else if (body.Contains("\"token\":\"is invalid\""))
+                            result.Status = AuthyStatus.InvalidToken;
+                        else
+                            throw new ApplicationException("An unknown error has occured");
                         break;
                     default:
                     case HttpStatusCode.BadRequest:
-                        result.Status = AuthyStatus.BadRequest;
+                        if (body.Contains("\"email\":\"is invalid\""))
+                            result.Status = AuthyStatus.InvalidEmail;
+                        else if (body.Contains("must be a valid cellphone number."))
+                            result.Status = AuthyStatus.InvalidPhoneNumber;
+                        else
+                            throw new ApplicationException("An unknown error has occured");
                         break;
                 }
                 return result;

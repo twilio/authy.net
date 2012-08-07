@@ -11,9 +11,11 @@ namespace Authy.Net
     public enum AuthyStatus
     {
         Success,
-        BadRequest,
         InvalidApiKey,
         InvalidToken,
-        Unauthorized
+        InvalidUser,
+        InvalidEmail,
+        InvalidPhoneNumber,
+        ServiceUnavailable,
     }
 }
