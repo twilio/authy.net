@@ -50,14 +50,15 @@ namespace Authy.Net
             return this.Execute<RegisterUserResult>(client =>
             {
                 var response = client.UploadValues(url, request);
+                var textResponse = Encoding.ASCII.GetString(response);
 
-                //TODO add error handling and better JSON parsing
                 return new RegisterUserResult()
                 {
                     Status = AuthyStatus.Success,
 
                     // TODO use real JSON parsing rather than a hackey regex
-                    UserId = Regex.Match(Encoding.ASCII.GetString(response), "id\":([0-9]+)").Groups[1].Value
+                    UserId = Regex.Match(textResponse, "id\":([0-9]+)").Groups[1].Value,
+                    RawResponse = textResponse
                 };
             });
         }
@@ -67,22 +68,31 @@ namespace Authy.Net
         /// </summary>
         /// <param name="userId">The Authy user id</param>
         /// <param name="token">The token to verify</param>
-        public VerifyTokenResult VerifyToken(string userId, string token)
+        /// <param name="force">Force verification to occur even if the user isn't registered (if the user hasn't finished registering the deefault is to succesfully validate)</param>
+        public VerifyTokenResult VerifyToken(string userId, string token, bool force = false)
         {
-            var url = string.Format("{0}/protected/json/verify/{1}/{2}?api_key={3}", this.baseUrl, token, userId, this.apiKey);
+            var url = string.Format("{0}/protected/json/verify/{1}/{2}?api_key={3}{4}", this.baseUrl, token, userId, this.apiKey, force ? "&force=true" : string.Empty);
             return this.Execute<VerifyTokenResult>(client =>
             {
                 var response = client.DownloadString(url);
-
-                //TODO add error handling and better JSON parsing
-                return new VerifyTokenResult()
-                {
-                    Status = AuthyStatus.Success
-                };
+                return new VerifyTokenResult() { Status = AuthyStatus.Success, RawResponse = response };
             });
         }
 
-        //TODO, add support for the optional SMS API
+        /// <summary>
+        /// Send an SMS message to a user who isn't registered.  If the user is registered with a mobile app then no message will be sent.
+        /// </summary>
+        /// <param name="userId">The user ID to send the message to</param>
+        /// <param name="force">Force a message to be sent even if the user is already reigistered as an app user.  This will incrase your costs</param>
+        public SendSmsResult SendSms(string userId, bool force = false)
+        {
+            var url = string.Format("{0}/protected/json/sms/{1}?api_key={2}{3}", this.baseUrl, userId, this.apiKey, force ? "&force=true" : string.Empty);
+            return this.Execute<SendSmsResult>(client =>
+            {
+                var response = client.DownloadString(url);
+                return new SendSmsResult() { Status = AuthyStatus.Success, RawResponse = response };
+            });
+        }
 
         private TResult Execute<TResult>(Func<WebClient, TResult> execute)
             where TResult : AuthyResult, new()
