@@ -12,14 +12,17 @@ namespace Authy.Net.Tests
     /// 
     /// Important!!!
     /// 
-    /// These tests won't pass unless you add a file Called ApiKey.txt to the root of the test project.
-    /// Once created add a single line containing a sandbox api key.
+    /// These tests won't pass unless you set the api key below.
     /// You can obtain such a key from the dashboard in your Authy account after you have created an application.
     /// 
     /// </remarks>
     [TestClass]
     public class ClientTests
     {
+		/// <summary>
+		/// Api Key. This must be set from your own account
+		/// </summary>
+		const string goodApiKey = "dummy";
         const string badApiKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
         [TestMethod]
@@ -116,9 +119,7 @@ namespace Authy.Net.Tests
 
         private AuthyClient GoodApiKeyClient
         {
-            get { return new AuthyClient(ApiKey.Value, true); }
+            get { return new AuthyClient(goodApiKey, true); }
         }
-
-        private Lazy<string> ApiKey = new Lazy<string>(() => File.ReadAllText("ApiKey.txt"));
     }
 }
