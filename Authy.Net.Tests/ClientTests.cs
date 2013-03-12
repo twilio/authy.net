@@ -19,10 +19,13 @@ namespace Authy.Net.Tests
     [TestClass]
     public class ClientTests
     {
-		/// <summary>
-		/// Api Key. This must be set from your own account
-		/// </summary>
-		const string goodApiKey = "dummy";
+        /// <summary>
+        /// Api Key. This must be set from your own account
+        /// </summary>
+        const string goodApiKey = "dummy";
+        /// <summary>
+        /// This is intended to be a bad API key. Don't set it to a good value!
+        /// </summary>
         const string badApiKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
         [TestMethod]
@@ -41,8 +44,6 @@ namespace Authy.Net.Tests
             var client = this.GoodApiKeyClient;
             var result = client.RegisterUser("test.com", "123-456-7891");
             Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
-            Assert.IsFalse((result.ErrorFields & AuthyErrorFields.Cellphone) == AuthyErrorFields.Cellphone);
-            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.Email) == AuthyErrorFields.Email);
         }
 
         [TestMethod]
@@ -51,8 +52,6 @@ namespace Authy.Net.Tests
             var client = this.GoodApiKeyClient;
             var result = client.RegisterUser("test@test.com", "aaa-456-7890");
             Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
-            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.Cellphone) == AuthyErrorFields.Cellphone);
-            Assert.IsFalse((result.ErrorFields & AuthyErrorFields.Email) == AuthyErrorFields.Email);
         }
 
         [TestMethod]
@@ -61,8 +60,6 @@ namespace Authy.Net.Tests
             var client = this.GoodApiKeyClient;
             var result = client.RegisterUser("test.com", "aaa-456-7890");
             Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
-            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.Cellphone) == AuthyErrorFields.Cellphone);
-            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.Email) == AuthyErrorFields.Email);
         }
 
         [TestMethod]
@@ -71,7 +68,6 @@ namespace Authy.Net.Tests
             var client = new AuthyClient(badApiKey, true);
             var result = client.RegisterUser("test@test.com", "123-456-7890");
             Assert.AreEqual(AuthyStatus.Unauthorized, result.Status);
-            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.ApiKey) == AuthyErrorFields.ApiKey);
         }
 
         [TestMethod]
@@ -95,7 +91,6 @@ namespace Authy.Net.Tests
             // now for the actual bad token test
             var verifyResult = client.VerifyToken(registrationResult.UserId, "1234567");
             Assert.AreEqual(AuthyStatus.Unauthorized, verifyResult.Status);
-            Assert.IsTrue((verifyResult.ErrorFields & AuthyErrorFields.Token) == AuthyErrorFields.Token);
         }
 
         [TestMethod]
@@ -105,7 +100,6 @@ namespace Authy.Net.Tests
             var result = client.VerifyToken("1", "0000000");
 
             Assert.AreEqual(AuthyStatus.Unauthorized, result.Status);
-            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.ApiKey) == AuthyErrorFields.ApiKey);
         }
 
         [TestMethod]
@@ -114,7 +108,6 @@ namespace Authy.Net.Tests
             var client = this.GoodApiKeyClient;
             var result = client.VerifyToken("99999", "1111111");
             Assert.AreEqual(AuthyStatus.Unauthorized, result.Status);
-            Assert.IsTrue((result.ErrorFields & AuthyErrorFields.User) == AuthyErrorFields.User);
         }
 
         private AuthyClient GoodApiKeyClient

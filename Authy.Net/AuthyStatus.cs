@@ -15,13 +15,11 @@ namespace Authy.Net
         /// </summary>
         Success,
         /// <summary>
-        /// The request was invalid.  Check the fields property for more information
+        /// The request was invalid.  Check the raw response for more information.
         /// </summary>
         BadRequest,
         /// <summary>
-        /// The request was unauthorized.
-        /// 
-        /// This could mean that an API key is wrong or it could mean that a token is incorrect.
+        /// The request was unauthorized. This could mean that an API key is wrong or it could mean that a token is incorrect. Check the raw response for more information.
         /// </summary>
         Unauthorized,
         /// <summary>

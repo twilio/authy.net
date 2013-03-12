@@ -42,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AuthyErrorFields.cs" />
     <Compile Include="AuthyResult.cs" />
     <Compile Include="AuthyStatus.cs" />
     <Compile Include="AuthyClient.cs" />
