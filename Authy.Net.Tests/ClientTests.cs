@@ -46,7 +46,7 @@ namespace Authy.Net.Tests
             Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
         }
 
-        [TestMethod]
+		[TestMethod, Ignore]
         public void Registration_BadPhoneNumber()
         {
             var client = this.GoodApiKeyClient;
@@ -54,7 +54,7 @@ namespace Authy.Net.Tests
             Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Registration_BadEmailAndPhoneNumber()
         {
             var client = this.GoodApiKeyClient;
