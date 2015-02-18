@@ -1,0 +1,9 @@
+.DS_Store
+
+bin/
+obj/
+*.suo
+*.user
+*.orig
+TestResults
+Authy.Net.Tests/ApiKey.txt
