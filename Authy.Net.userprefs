@@ -1,0 +1,19 @@
+﻿<Properties StartupItem="Authy.Net/Authy.Net.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Authy.Net/AuthyStatus.cs">
+    <Files>
+      <File FileName="Authy.Net/AuthyStatus.cs" Line="23" Column="23" />
+      <File FileName="TraceAndTestImpact.testsettings" Line="1" Column="1" />
+      <File FileName="Authy.Net.Tests/App.config" Line="1" Column="1" />
+      <File FileName="Testing/ClientTest.cs" Line="1" Column="1" />
+      <File FileName="Authy.Net/AuthyResult.cs" Line="1" Column="1" />
+      <File FileName="Authy.Net.Tests/ClientTests.cs" Line="1" Column="1" NotebookId="1" />
+      <File FileName="Authy.Net/AuthyClient.cs" Line="10" Column="10" NotebookId="1" />
+      <File FileName="Authy.Net/RegisterUserResult.cs" Line="1" Column="1" NotebookId="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
