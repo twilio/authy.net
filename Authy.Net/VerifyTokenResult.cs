@@ -10,5 +10,9 @@ namespace Authy.Net
     /// </summary>
     public class VerifyTokenResult : AuthyResult
     {
+        /// <summary>
+        /// Confirmation if token is valid or invalid
+        /// </summary>
+        public string Token { get; set; }
     }
 }

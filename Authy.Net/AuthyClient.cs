@@ -41,9 +41,9 @@ namespace Authy.Net
         {
             var request = new System.Collections.Specialized.NameValueCollection()
             {
-	            {"user[email]", email},
-	            {"user[cellphone]",cellPhoneNumber},
-	            {"user[country_code]",countryCode.ToString()}
+                {"user[email]", email},
+                {"user[cellphone]",cellPhoneNumber},
+                {"user[country_code]",countryCode.ToString()}
             };
 
             var url = string.Format("{0}/protected/json/users/new?api_key={1}", this.baseUrl, this.apiKey);
@@ -52,12 +52,12 @@ namespace Authy.Net
                 var response = client.UploadValues(url, request);
                 var textResponse = Encoding.ASCII.GetString(response);
 
-				RegisterUserResult apiResponse = JsonConvert.DeserializeObject<RegisterUserResult>(textResponse);
-				apiResponse.RawResponse = textResponse;
-				apiResponse.Status = AuthyStatus.Success;
-				apiResponse.UserId = apiResponse.User["id"];
+                RegisterUserResult apiResponse = JsonConvert.DeserializeObject<RegisterUserResult>(textResponse);
+                apiResponse.RawResponse = textResponse;
+                apiResponse.Status = AuthyStatus.Success;
+                apiResponse.UserId = apiResponse.User["id"];
 
-				return apiResponse;
+                return apiResponse;
             });
         }
 
@@ -73,7 +73,12 @@ namespace Authy.Net
             return this.Execute<VerifyTokenResult>(client =>
             {
                 var response = client.DownloadString(url);
-                return new VerifyTokenResult() { Status = AuthyStatus.Success, RawResponse = response };
+
+                VerifyTokenResult apiResponse = JsonConvert.DeserializeObject<VerifyTokenResult>(response);
+                apiResponse.Status = AuthyStatus.Success;
+                apiResponse.RawResponse = response;
+
+                return apiResponse;
             });
         }
 
@@ -88,7 +93,12 @@ namespace Authy.Net
             return this.Execute<SendSmsResult>(client =>
             {
                 var response = client.DownloadString(url);
-                return new SendSmsResult() { Status = AuthyStatus.Success, RawResponse = response };
+
+                SendSmsResult apiResponse = JsonConvert.DeserializeObject<SendSmsResult>(response);
+                apiResponse.Status = AuthyStatus.Success;
+                apiResponse.RawResponse = response;
+
+                return apiResponse;
             });
         }
 
@@ -103,14 +113,14 @@ namespace Authy.Net
             catch (WebException webex)
             {
                 var response = webex.Response.GetResponseStream();
+
                 string body;
                 using (var reader = new StreamReader(response))
                 {
                     body = reader.ReadToEnd();
                 }
 
-                //TODO parse out the json response into an error dictionary
-                var result = new TResult() { RawResponse = body };
+                TResult result = JsonConvert.DeserializeObject<TResult>(body);
 
                 switch (((HttpWebResponse)webex.Response).StatusCode)
                 {

@@ -15,9 +15,9 @@ namespace Authy.Net
         /// </summary>
         public string UserId { get; set; }
 
-		/// <summary>
-		/// The user information on Authy API
-		/// </summary>
-		public Dictionary<string, string> User { get; set;}
-	}	
+        /// <summary>
+        /// The user information on Authy API
+        /// </summary>
+        public Dictionary<string, string> User { get; set;}
+    }
 }
