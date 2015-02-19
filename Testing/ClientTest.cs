@@ -83,7 +83,7 @@ namespace Testing {
         }
 
         [Test]
-        public void Verification_BadToken() {
+        public void Verification_InvalidToken() {
             var client = this.ValidAuthyClient;
             var registrationResult = client.RegisterUser("test@test.com", "317-338-9302", 93);
             var result = client.VerifyToken(registrationResult.UserId, "1234567");
@@ -111,6 +111,25 @@ namespace Testing {
             Assert.AreEqual(result.Status, AuthyStatus.Unauthorized);
             Assert.AreEqual(result.Success, false);
             Assert.AreEqual(result.Message, "User doesn't exist.");
+        }
+
+        [Test]
+        public void Verification_BadToken() {
+            var client = this.ValidAuthyClient;
+            var result = client.VerifyToken("1", "1234");
+
+            Assert.AreEqual(result.Status, AuthyStatus.BadRequest);
+            Assert.AreEqual(result.Success, false);
+            Assert.AreEqual(result.Message, "Token is invalid.");
+            Assert.AreEqual(result.Errors ["token"], "is invalid");
+        }
+
+        [Test]
+        public void Send_SMS() {
+            var client = this.ValidAuthyClient;
+            var result = client.SendSms("1", false);
+
+            Assert.AreEqual(result.Message, "SMS token was sent");
         }
     }
 }

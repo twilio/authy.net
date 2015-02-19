@@ -3,6 +3,8 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace Authy.Net
 {
@@ -11,7 +13,7 @@ namespace Authy.Net
     /// </summary>
     /// <remarks>
     /// This library is threadsafe since the only shared state is stored in private readonly fields.
-    /// 
+    ///
     /// Creating a single instance of the client and using it across multiple threads isn't a problem.
     /// </remarks>
     public class AuthyClient
@@ -61,6 +63,28 @@ namespace Authy.Net
             });
         }
 
+        ///<summary>
+        /// Remove all non-digits from the string
+        /// </summary>
+        ///<param name="value">The string to sanitize</param>
+        public string SanitizeNumber(string value) {
+            return Regex.Replace(value, @"\D", string.Empty);
+        }
+
+        ///<summary>
+        /// Validate the token entered by the user
+        /// </summary>
+        /// <param name="token">The token to validate</param>
+        public bool TokenIsValid(string token) {
+            token = SanitizeNumber(token);
+
+            if (token.Length < 6 || token.Length > 10) {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Verify a token with authy
         /// </summary>
@@ -69,13 +93,38 @@ namespace Authy.Net
         /// <param name="force">Force verification to occur even if the user isn't registered (if the user hasn't finished registering the deefault is to succesfully validate)</param>
         public VerifyTokenResult VerifyToken(string userId, string token, bool force = false)
         {
+            if ( !TokenIsValid(token)) 
+            {
+                Dictionary<string, string> errors = new Dictionary<string, string>();
+                errors.Add("token", "is invalid");
+
+                return new VerifyTokenResult() {
+                    Status = AuthyStatus.BadRequest,
+                    Success = false,
+                    Message = "Token is invalid.",
+                    Errors = errors
+                };
+            }
+
+            token = SanitizeNumber(token);
+            userId = SanitizeNumber(userId);
+
             var url = string.Format("{0}/protected/json/verify/{1}/{2}?api_key={3}{4}", this.baseUrl, token, userId, this.apiKey, force ? "&force=true" : string.Empty);
             return this.Execute<VerifyTokenResult>(client =>
             {
                 var response = client.DownloadString(url);
 
                 VerifyTokenResult apiResponse = JsonConvert.DeserializeObject<VerifyTokenResult>(response);
-                apiResponse.Status = AuthyStatus.Success;
+
+                if (apiResponse.Token == "is valid")
+                {
+                    apiResponse.Status = AuthyStatus.Success;
+                }
+                else
+                {
+                    apiResponse.Success = false;
+                    apiResponse.Status = AuthyStatus.Unauthorized;
+                }
                 apiResponse.RawResponse = response;
 
                 return apiResponse;
@@ -89,6 +138,8 @@ namespace Authy.Net
         /// <param name="force">Force a message to be sent even if the user is already reigistered as an app user.  This will incrase your costs</param>
         public SendSmsResult SendSms(string userId, bool force = false)
         {
+            userId = SanitizeNumber(userId);
+
             var url = string.Format("{0}/protected/json/sms/{1}?api_key={2}{3}", this.baseUrl, userId, this.apiKey, force ? "&force=true" : string.Empty);
             return this.Execute<SendSmsResult>(client =>
             {
