@@ -52,14 +52,12 @@ namespace Authy.Net
                 var response = client.UploadValues(url, request);
                 var textResponse = Encoding.ASCII.GetString(response);
 
-                return new RegisterUserResult()
-                {
-                    Status = AuthyStatus.Success,
+				RegisterUserResult apiResponse = JsonConvert.DeserializeObject<RegisterUserResult>(textResponse);
+				apiResponse.RawResponse = textResponse;
+				apiResponse.Status = AuthyStatus.Success;
+				apiResponse.UserId = apiResponse.User["id"];
 
-                    // TODO use real JSON parsing rather than a hackey regex
-                    UserId = Regex.Match(textResponse, "id\":([0-9]+)").Groups[1].Value,
-                    RawResponse = textResponse
-                };
+				return apiResponse;
             });
         }
 

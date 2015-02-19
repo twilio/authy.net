@@ -19,5 +19,20 @@ namespace Authy.Net
         /// The raw response returned from the API
         /// </summary>
         public string RawResponse { get; set; }
-    }
+
+		/// <summary>
+		/// The request was success
+		/// </summary>
+		public bool Success { get; set; }
+
+		/// <summary>
+		/// The message from the API
+		/// </summary>
+		public string Message { get; set; }
+
+		/// <summary>
+		/// The list of erros
+		/// <summary>
+		public Dictionary<string, string> Errors { get; set; }
+	}
 }
