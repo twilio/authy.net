@@ -153,6 +153,29 @@ namespace Authy.Net
             });
         }
 
+
+        /// <summary>
+        /// Send the token via phone call to a user who isn't registered.  If the user is registered with a mobile app then the phone call will be ignored.
+        /// </summary>
+        /// <param name="userId">The user ID to send the phone call to</param>
+        /// <param name="force">Force to the phone call to be sent even if the user is already reigistered as an app user.  This will incrase your costs</param>
+        public AuthyResult StartPhoneCall(string userId, bool force = false)
+        {
+            userId = SanitizeNumber(userId);
+
+            var url = string.Format("{0}/protected/json/call/{1}?api_key={2}{3}", this.baseUrl, userId, this.apiKey, force ? "&force=true" : string.Empty);
+            return this.Execute<AuthyResult>(client =>
+            {
+                var response = client.DownloadString(url);
+
+                AuthyResult apiResponse = JsonConvert.DeserializeObject<AuthyResult>(response);
+                apiResponse.Status = AuthyStatus.Success;
+                apiResponse.RawResponse = response;
+
+                return apiResponse;
+            });
+        }
+
         private TResult Execute<TResult>(Func<WebClient, TResult> execute)
             where TResult : AuthyResult, new()
         {
