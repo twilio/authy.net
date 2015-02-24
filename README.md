@@ -4,6 +4,8 @@ Authy.Net is a simple client for the Authy API. It is available as a NuGet packa
 
     PM> Install-Package Authy.Net
 
+Forked from the library of devinmartin in [https://bitbucket.org/devinmartin/authy.net/wiki/Home](https://bitbucket.org/devinmartin/authy.net/wiki/Home)
+
 
 ## License
 
