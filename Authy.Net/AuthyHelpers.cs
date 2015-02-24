@@ -29,7 +29,7 @@ namespace Authy.Net
 
             return true;
         }
-            
+
         /// <summary>
         /// Gets the version of the Assembly.
         /// </summary>
@@ -41,6 +41,16 @@ namespace Authy.Net
 
             return version;
         }
+
+        /// <summary>
+        /// Get the system information
+        /// </summary>
+        /// <returns>The .NET version</returns>
+        public static string GetSystemInfo() {
+            var runtimeVersion = Environment.Version;
+            return string.Format("Runtime v{0}", runtimeVersion);
+        }
+
     }
 }
 

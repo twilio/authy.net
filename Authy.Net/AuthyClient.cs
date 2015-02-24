@@ -72,7 +72,7 @@ namespace Authy.Net
         /// <param name="force">Force verification to occur even if the user isn't registered (if the user hasn't finished registering the deefault is to succesfully validate)</param>
         public VerifyTokenResult VerifyToken(string userId, string token, bool force = false)
         {
-            if ( !AuthyHelpers.TokenIsValid(token)) 
+            if ( !AuthyHelpers.TokenIsValid(token))
             {
                 Dictionary<string, string> errors = new Dictionary<string, string>();
                 errors.Add("token", "is invalid");
@@ -159,8 +159,9 @@ namespace Authy.Net
             where TResult : AuthyResult, new()
         {
             var client = new WebClient();
-            var libraryVersion = AuthyHelpers.GetVersion ();
-            var userAgent = string.Format("AuthyNet/{0} ", libraryVersion);
+            var libraryVersion = AuthyHelpers.GetVersion();
+            var runtimeVersion = AuthyHelpers.GetSystemInfo();
+            var userAgent = string.Format("AuthyNet/{0} ({1})", libraryVersion, runtimeVersion);
 
             // Set a custom user agent
             client.Headers.Add("user-agent", userAgent);
