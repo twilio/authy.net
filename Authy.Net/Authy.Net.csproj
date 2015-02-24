@@ -52,6 +52,7 @@
     <Compile Include="RegisterUserResult.cs" />
     <Compile Include="SendSmsResult.cs" />
     <Compile Include="VerifyTokenResult.cs" />
+    <Compile Include="AuthyHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Authy.Net.nuspec" />
