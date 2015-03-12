@@ -1,10 +1,8 @@
 # Authy .NET
 
-Authy.Net is a simple client for the Authy API. It is available as a NuGet package.
+Authy.Net is a simple client for the Authy API. An older and unsafe version is available in NuGet - we wish we could update it, but we don't have access to this package so we can't. Please upgrade library by downloading it directly from Github.
 
-    PM> Install-Package Authy.Net
-
-Forked from the library of devinmartin in [https://bitbucket.org/devinmartin/authy.net/wiki/Home](https://bitbucket.org/devinmartin/authy.net/wiki/Home)
+Forked and patched from the library of devinmartin in [https://bitbucket.org/devinmartin/authy.net/wiki/Home](https://bitbucket.org/devinmartin/authy.net/wiki/Home)
 
 
 ## License
