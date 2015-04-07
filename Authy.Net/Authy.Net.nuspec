@@ -1,15 +1,16 @@
-<?xml version="1.0"?>
-<package >
-  <metadata>
-    <id>Authy.Net</id>
-    <version>$version$</version>
-    <title>Authy.Net</title>
-    <authors>Devin Martin</authors>
-    <owners>Devin Martin</owners>
-    <projectUrl>https://bitbucket.org/devinmartin/authy.net/wiki/Home</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Simple client library for the Authy API.</description>
-    <copyright>Copyright 2012-2013 Devin Martin</copyright>
-    <tags>Authy two-factor authentication two factor</tags>
-  </metadata>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Authy.Net</id>
+        <version>$version$</version>
+        <title>Authy.Net</title>
+        <authors>Devin Martin</authors>
+        <owners>Devin Martin</owners>
+        <projectUrl>https://github.com/devinmartin/authy.net</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Simple client library for the Authy API.</description>
+        <releaseNotes>1.1 Better token validation to improve security</releaseNotes>
+        <copyright>Copyright 2012-2015 Devin Martin</copyright>
+        <tags>Authy two-factor authentication two factor</tags>
+    </metadata>
 </package>
