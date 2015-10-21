@@ -114,7 +114,7 @@ namespace Authy.Net
         /// Send an SMS message to a user who isn't registered.  If the user is registered with a mobile app then no message will be sent.
         /// </summary>
         /// <param name="userId">The user ID to send the message to</param>
-        /// <param name="force">Force a message to be sent even if the user is already reigistered as an app user.  This will incrase your costs</param>
+        /// <param name="force">Force a message to be sent even if the user is already registered as an app user. This will incrase your costs</param>
         public SendSmsResult SendSms(string userId, bool force = false)
         {
             userId = AuthyHelpers.SanitizeNumber(userId);
@@ -137,7 +137,7 @@ namespace Authy.Net
         /// Send the token via phone call to a user who isn't registered.  If the user is registered with a mobile app then the phone call will be ignored.
         /// </summary>
         /// <param name="userId">The user ID to send the phone call to</param>
-        /// <param name="force">Force to the phone call to be sent even if the user is already reigistered as an app user.  This will incrase your costs</param>
+        /// <param name="force">Force to the phone call to be sent even if the user is already registered as an app user. This will incrase your costs</param>
         public AuthyResult StartPhoneCall(string userId, bool force = false)
         {
             userId = AuthyHelpers.SanitizeNumber(userId);
