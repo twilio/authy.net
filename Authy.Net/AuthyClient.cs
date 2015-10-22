@@ -62,8 +62,6 @@ namespace Authy.Net
             });
         }
 
-
-
         /// <summary>
         /// Verify a token with authy
         /// </summary>
@@ -131,7 +129,6 @@ namespace Authy.Net
                 return apiResponse;
             });
         }
-
 
         /// <summary>
         /// Send the token via phone call to a user who isn't registered.  If the user is registered with a mobile app then the phone call will be ignored.
