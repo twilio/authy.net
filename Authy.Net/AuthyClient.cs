@@ -69,7 +69,7 @@ namespace Authy.Net
         /// </summary>
         /// <param name="userId">The Authy user id</param>
         /// <param name="token">The token to verify</param>
-        /// <param name="force">Force verification to occur even if the user isn't registered (if the user hasn't finished registering the deefault is to succesfully validate)</param>
+        /// <param name="force">Force verification to occur even if the user isn't registered (if the user hasn't finished registering the default is to succesfully validate)</param>
         public VerifyTokenResult VerifyToken(string userId, string token, bool force = false)
         {
             if ( !AuthyHelpers.TokenIsValid(token))
