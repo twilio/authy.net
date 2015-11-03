@@ -62,14 +62,12 @@ namespace Authy.Net
             });
         }
 
-
-
         /// <summary>
         /// Verify a token with authy
         /// </summary>
         /// <param name="userId">The Authy user id</param>
         /// <param name="token">The token to verify</param>
-        /// <param name="force">Force verification to occur even if the user isn't registered (if the user hasn't finished registering the deefault is to succesfully validate)</param>
+        /// <param name="force">Force verification to occur even if the user isn't registered (if the user hasn't finished registering the default is to succesfully validate)</param>
         public VerifyTokenResult VerifyToken(string userId, string token, bool force = false)
         {
             if ( !AuthyHelpers.TokenIsValid(token))
@@ -114,7 +112,7 @@ namespace Authy.Net
         /// Send an SMS message to a user who isn't registered.  If the user is registered with a mobile app then no message will be sent.
         /// </summary>
         /// <param name="userId">The user ID to send the message to</param>
-        /// <param name="force">Force a message to be sent even if the user is already reigistered as an app user.  This will incrase your costs</param>
+        /// <param name="force">Force a message to be sent even if the user is already registered as an app user. This will incrase your costs</param>
         public SendSmsResult SendSms(string userId, bool force = false)
         {
             userId = AuthyHelpers.SanitizeNumber(userId);
@@ -132,12 +130,11 @@ namespace Authy.Net
             });
         }
 
-
         /// <summary>
         /// Send the token via phone call to a user who isn't registered.  If the user is registered with a mobile app then the phone call will be ignored.
         /// </summary>
         /// <param name="userId">The user ID to send the phone call to</param>
-        /// <param name="force">Force to the phone call to be sent even if the user is already reigistered as an app user.  This will incrase your costs</param>
+        /// <param name="force">Force to the phone call to be sent even if the user is already registered as an app user. This will incrase your costs</param>
         public AuthyResult StartPhoneCall(string userId, bool force = false)
         {
             userId = AuthyHelpers.SanitizeNumber(userId);
