@@ -49,3 +49,7 @@ From this link: [http://www.monodevelop.com/download/] (http://www.monodevelop.c
 ### 4. Import the project in Xamarin Studio
 
 Open -> Authy.Net.sln
+
+## Copyright
+
+Copyright (c) 2015-2020 Authy Inc. See LICENSE.txt for further details.
