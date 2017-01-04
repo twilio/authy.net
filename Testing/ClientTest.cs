@@ -43,12 +43,12 @@ namespace Testing {
         [Test]
         public void Registration_InvalidEmail() {
             var client = this.ValidAuthyClient;
-            var result = client.RegisterUser("test.com", "317-338-9302", 93);
+            var result = client.RegisterUser("test.com", "317-338-9302", 57);
 
             Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
             Assert.AreEqual(result.Success, false);
             Assert.AreEqual(result.Errors["email"], "is invalid");
-            Assert.AreEqual (result.Message, "User was not valid.");
+            Assert.AreEqual (result.Message, "User was not valid");
         }
 
         [Test]
@@ -58,23 +58,25 @@ namespace Testing {
 
             Assert.AreEqual(AuthyStatus.BadRequest, result.Status);
             Assert.AreEqual(result.Success, false);
-            Assert.AreEqual (result.Message, "User was not valid.");
+			Assert.AreEqual(result.Errors["cellphone"], "is invalid");
+            Assert.AreEqual (result.Message, "User was not valid");
         }
 
         [Test]
         public void Registration_InvalidApiKey() {
             var client = new AuthyClient(invalidApiKey, true);
-            var result = client.RegisterUser("test@test.com", "317-338-9302", 93);
+            var result = client.RegisterUser("test@test.com", "317-338-9302", 57);
 
             Assert.AreEqual(AuthyStatus.Unauthorized, result.Status);
             Assert.AreEqual(result.Success, false);
-            Assert.AreEqual(result.Message, "Invalid API key.");
+            Assert.AreEqual(result.Message, "Invalid API key");
         }
 
         [Test]
         public void Verification_Success() {
             var client = this.ValidAuthyClient;
-            var result = client.VerifyToken("1", "0000000");
+			var registration = client.RegisterUser("test@test.com", "317-338-9302", 57);
+			var result = client.VerifyToken(registration.UserId, "0000000");
 
             Assert.AreEqual(result.Status, AuthyStatus.Success);
             Assert.AreEqual(result.Success, true);
@@ -85,12 +87,12 @@ namespace Testing {
         [Test]
         public void Verification_InvalidToken() {
             var client = this.ValidAuthyClient;
-            var registrationResult = client.RegisterUser("test@test.com", "317-338-9302", 93);
+            var registrationResult = client.RegisterUser("test@test.com", "317-338-9302", 57);
             var result = client.VerifyToken(registrationResult.UserId, "1234567");
 
             Assert.AreEqual(result.Status, AuthyStatus.Unauthorized);
             Assert.AreEqual(result.Success, false);
-            Assert.AreEqual (result.Message, "Token is invalid.");
+            Assert.AreEqual (result.Message, "Token is invalid");
         }
 
         [Test]
@@ -100,7 +102,7 @@ namespace Testing {
 
             Assert.AreEqual(result.Status, AuthyStatus.Unauthorized);
             Assert.AreEqual(result.Success, false);
-            Assert.AreEqual(result.Message, "Invalid API key.");
+            Assert.AreEqual(result.Message, "Invalid API key");
         }
 
         [Test]
@@ -110,7 +112,7 @@ namespace Testing {
 
             Assert.AreEqual(result.Status, AuthyStatus.Unauthorized);
             Assert.AreEqual(result.Success, false);
-            Assert.AreEqual(result.Message, "User doesn't exist.");
+            Assert.AreEqual(result.Message, "User doesn't exist");
         }
 
         [Test]
@@ -129,7 +131,7 @@ namespace Testing {
             var client = this.ValidAuthyClient;
             var result = client.SendSms("1", false);
 
-            Assert.AreEqual(result.Message, "SMS token was sent");
+            Assert.AreEqual(result.Message, "Token was sent.");
         }
 
         [Test]
