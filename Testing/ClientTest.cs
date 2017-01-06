@@ -14,10 +14,11 @@ namespace Testing {
     [TestFixture]
     public class ClientTest
     {
-        /// <summary>
-        /// Api Key. This must be set from your own account
-        /// </summary>
-        const string validApiKey = "d57d919d11e6b221c9bf6f7c882028f9";
+		/// <summary>
+		/// Api Key. This must be set from your own account
+		/// </summary>
+		//const string validApiKey = "d57d919d11e6b221c9bf6f7c882028f9";
+		const string validApiKey = "xzfVSc8CTwU2Mpl959CcMhw3fZBfI5F0";
         /// <summary>
 
         /// This is intended to be a bad API key. Don't set it to a good value!
@@ -25,13 +26,13 @@ namespace Testing {
         const string invalidApiKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
         private AuthyClient ValidAuthyClient {
-            get { return new AuthyClient(validApiKey, true); }
+            get { return new AuthyClient(validApiKey, false); }
         }
 
         [Test]
         public void Registration_Success () {
             var client = this.ValidAuthyClient;
-            var result = client.RegisterUser("test@test.com", "317-338-9302", 57);
+            var result = client.RegisterUser("hans+2@mobileaws.com", "3017872848", 57);
 
             Assert.AreEqual(AuthyStatus.Success, result.Status);
             Assert.IsNotNull(result.UserId);
@@ -75,7 +76,7 @@ namespace Testing {
         [Test]
         public void Verification_Success() {
             var client = this.ValidAuthyClient;
-			var registration = client.RegisterUser("test@test.com", "317-338-9302", 57);
+			var registration = client.RegisterUser("hans+2@mobileaws.com", "3017872848", 57);
 			var result = client.VerifyToken(registration.UserId, "0000000");
 
             Assert.AreEqual(result.Status, AuthyStatus.Success);
@@ -129,17 +130,27 @@ namespace Testing {
         [Test]
         public void Send_SMS() {
             var client = this.ValidAuthyClient;
-            var result = client.SendSms("1", false);
+            var result = client.SendSms("30144611", true);
 
-            Assert.AreEqual(result.Message, "Token was sent.");
+			Assert.AreEqual(result.Status,  AuthyStatus.Success);
+			Assert.AreEqual(result.Message, "SMS token was sent");
         }
 
         [Test]
         public void Start_PhoneCall() {
             var client = this.ValidAuthyClient;
-            var result = client.StartPhoneCall("1", false);
+            var result = client.StartPhoneCall("30144611", true);
 
             Assert.AreEqual(result.Message, "Call started...");
         }
+
+		[Test]
+		public void Start_OneTouch()
+		{
+			var client = this.ValidAuthyClient;
+			var result = client.OneTouch("30144611");
+			Assert.AreEqual(result.Success, true);
+			Assert.IsNotNull(result.Approval_Request["uuid"]);
+		}
     }
 }

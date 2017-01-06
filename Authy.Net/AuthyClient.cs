@@ -152,6 +152,33 @@ namespace Authy.Net
             });
         }
 
+		/// <summary>
+		/// Execute the specified execute.
+		/// </summary>
+		/// <param name="userID">Id of the user to request one touch</param>
+		public OneTouchResult OneTouch(string userId)
+		{
+			userId = AuthyHelpers.SanitizeNumber(userId);
+			var request = new System.Collections.Specialized.NameValueCollection()
+			{
+				{"api_key", this.apiKey},
+				{"message", "Login requested by X company"},
+				{"details[username]", "Gabriel Garcia Marquez"},
+				{"details[location]", "Colombia"}
+			};
+			var url = string.Format("{0}/onetouch/json/users/{1}/approval_requests", this.baseUrl, userId);
+			return this.Execute<OneTouchResult>(client =>
+			{
+				var response = client.UploadValues(url, request);
+				var textResponse = Encoding.ASCII.GetString(response);
+
+				OneTouchResult apiResponse = JsonConvert.DeserializeObject<OneTouchResult>(textResponse);
+				apiResponse.RawResponse = textResponse;
+
+				return apiResponse;
+			});
+		}
+
         private TResult Execute<TResult>(Func<WebClient, TResult> execute)
             where TResult : AuthyResult, new()
         {
