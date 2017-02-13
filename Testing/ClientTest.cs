@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 using Authy.Net;
 using System;
 
@@ -147,10 +148,61 @@ namespace Testing {
 		[Test]
 		public void Start_OneTouch()
 		{
+			var details = new Dictionary<string, string>();
+			details.Add("username","Gabriel Garcia Marquez");
+			details.Add("location","Colombia");
+			var hidden_details = new Dictionary<string, string>();
+			hidden_details.Add("ip_address","192.168.1.1");
+			var logos = new List<Dictionary<string,string>>();
+			logos.Add(new Dictionary<string, string> { { "res", "default" }, { "url", "https://www.microsoft.com/net/images/VS-checkmark.png" } });
+			//logos.Add(new Dictionary<string, string> { { "res", "med" }    , { "url", "https://www.microsoft.com/net/images/VS-checkmark.png" } });
 			var client = this.ValidAuthyClient;
-			var result = client.OneTouch("30144611");
+			var result = client.OneTouch("30144611","Login requested by X",details,hidden_details,logos);
 			Assert.AreEqual(result.Success, true);
 			Assert.IsNotNull(result.Approval_Request["uuid"]);
 		}
+
+		[Test]
+		public void Check_ApprovalStatus()
+		{
+			var client = this.ValidAuthyClient;
+			var result = client.OneTouch("30144611","Login requested by X");
+			var uuid = result.Approval_Request["uuid"];
+			var resultStatus = client.GetApprovalStatus(uuid);
+			Assert.AreEqual(resultStatus.Success, true);
+		}
+
+		[Test]
+		public void Message_Requiere()
+		{
+			var details = new Dictionary<string, string>();
+			details.Add("username", "Gabriel Garcia Marquez");
+			details.Add("location", "Colombia");
+			var hidden_details = new Dictionary<string, string>();
+			hidden_details.Add("ip_address", "192.168.1.1");
+			var client = this.ValidAuthyClient;
+			var result = client.OneTouch("30144611", "", details, hidden_details);
+			Assert.AreEqual(result.Success, false);
+			Assert.AreEqual(result.Message, "Message cannot be blank");
+		}
+
+		[Test]
+		public void Invalid_Logos_Keys()
+		{
+			var details = new Dictionary<string, string>();
+			details.Add("username", "Gabriel Garcia Marquez");
+			details.Add("location", "Colombia");
+			var hidden_details = new Dictionary<string, string>();
+			hidden_details.Add("ip_address", "192.168.1.1");
+			var logos = new List<Dictionary<string, string>>();
+			logos.Add(new Dictionary<string, string> { { "wrong", "default" }, { "url", "https://www.microsoft.com/net/images/VS-checkmark.png" } });
+			logos.Add(new Dictionary<string, string> { { "res", "low" }, { "url", "https://www.microsoft.com/net/images/VS-checkmark.png" } });
+			var client = this.ValidAuthyClient;
+			var result = client.OneTouch("30144611", "Login requested by X", details, hidden_details, logos);
+			Assert.AreEqual(result.Success, false);
+			Assert.AreEqual(result.Message, "Invalid logos dict keys. Expected \'res\' or \'url\'");
+			Assert.IsNull(result.Approval_Request);
+		}
+
     }
 }

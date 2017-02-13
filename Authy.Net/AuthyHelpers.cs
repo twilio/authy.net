@@ -2,11 +2,19 @@
 using System.Reflection;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Text;
+using PCLCrypto;
+using static PCLCrypto.WinRTCrypto;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Net;
 
 namespace Authy.Net
 {
     public class AuthyHelpers
     {
+
+		public static int MAX_STRING_SIZE = 200;
 
         ///<summary>
         /// Remove all non-digits from the string
@@ -51,6 +59,92 @@ namespace Authy.Net
             return string.Format("Runtime v{0}", runtimeVersion);
         }
 
+		/// <summary>
+		/// Hmacsha256 the specified key and value.
+		/// </summary>
+		/// <param name="key">Key.</param>
+		/// <param name="value">Value.</param>
+		public static string GenerateHash(String key, string value)
+		{
+			var mac = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithm.HmacSha256);
+			var keyMaterial = CryptographicBuffer.ConvertStringToBinary(key, Encoding.UTF8);
+			var cryptoKey = mac.CreateKey(keyMaterial);
+			var hash = CryptographicEngine.Sign(cryptoKey, CryptographicBuffer.ConvertStringToBinary(value, Encoding.UTF8));
+			return CryptographicBuffer.EncodeToBase64String(hash);
+		}
+
+		public static bool ValidateSignature(Dictionary<string, string> parameters, NameValueCollection headers, string method, string url, string authyToken)
+		{
+			StringBuilder sb = new StringBuilder(headers.Get("X-Authy-Signature-Nonce"))
+							.Append("|")
+							.Append(method)
+							.Append("|")
+							.Append(url)
+							.Append("|")
+							.Append(MapToQuery(parameters));
+			string signature = GenerateHash(authyToken, sb.ToString());
+
+			return signature.Equals(headers.Get("X-Authy-Signature"));
+		}
+
+		public static string MapToQuery(Dictionary<string, string> map)
+		{
+
+			StringBuilder sb = new StringBuilder();
+
+			Dictionary<string, string>.KeyCollection keys = map.Keys;
+
+			bool first = true;
+
+			foreach (string key in keys)
+			{
+
+				if (first)
+				{
+					first = false;
+				}
+				else {
+					sb.Append("&");
+				}
+
+				string value = map[key];
+
+				// don't encode null values
+				if (value == null)
+				{
+					continue;
+				}
+				sb.Append(WebUtility.UrlEncode(key)).Append("=").Append(WebUtility.UrlEncode(value));
+			}
+
+			return sb.ToString();
+
+		}
+
+		public static void Extract(string pre, object obj, Dictionary<string, string> map)
+		{
+			Dictionary<string, object> json = (Dictionary<string, object>)obj;
+			foreach (KeyValuePair<string, object> entry in json)
+			{
+				string key = pre.Length == 0 ? entry.Key : pre + "[" + entry.Key + "]";
+				try
+				{
+					var type = entry.Value.GetType();
+					if (type.IsPrimitive || type == typeof(String) || type == typeof(bool) || type == typeof(int) || type == typeof(float) || type == typeof(double) || type == typeof(decimal))
+					{
+						map.Add(key, entry.Value.ToString());
+					}
+					else {
+						Extract(key, entry.Value, map);
+					}
+				}
+				catch (Exception e)
+				{
+					throw e;
+				}
+
+			}
+		}
     }
 }
 

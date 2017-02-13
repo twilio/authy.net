@@ -153,19 +153,77 @@ namespace Authy.Net
         }
 
 		/// <summary>
-		/// Execute the specified execute.
+		/// Ones the touch.
 		/// </summary>
-		/// <param name="userID">Id of the user to request one touch</param>
-		public OneTouchResult OneTouch(string userId)
+		/// <returns>The touch.</returns>
+		/// <param name="userId">User identifier.</param>
+		/// <param name="details">Details.</param>
+		/// <param name="hidden_details">Hidden details.</param>
+		/// <param name="logos">Logos.</param>
+		/// <param name="message">Message.</param>
+		/// <param name="secondToExpire">Second to expire.</param>
+		public OneTouchResult OneTouch(string userId, string message, Dictionary<string, string> details = null, Dictionary<string, string> hidden_details = null, List<Dictionary<string, string>> logos = null, float secondToExpire = 86400)
 		{
 			userId = AuthyHelpers.SanitizeNumber(userId);
+			if (message.Length==0)
+			{
+				OneTouchResult otr = new OneTouchResult();
+				otr.Message = "Message cannot be blank";
+				return otr;
+			}
+
 			var request = new System.Collections.Specialized.NameValueCollection()
 			{
 				{"api_key", this.apiKey},
-				{"message", "Login requested by X company"},
-				{"details[username]", "Gabriel Garcia Marquez"},
-				{"details[location]", "Colombia"}
+				{"message", message},
+				{"seconds_to_expire", secondToExpire.ToString()}
 			};
+			if (details != null)
+			{
+				foreach (var entry in details)
+				{
+					request.Add("details["+entry.Key+"]",entry.Value);
+				}
+			}
+			if (hidden_details != null)
+			{
+				foreach (var entry in hidden_details)
+				{
+					request.Add("hidden_details[" + entry.Key + "]", entry.Value);
+				}
+			}
+			if (logos != null && logos.ToArray().Length != 0)
+			{
+				Dictionary<string, string> tempDictionary;
+				List<Dictionary<string, string>> tempList = new List<Dictionary<string,string>>();
+				int indice = 0;
+				foreach (var entry in logos) {
+					
+					tempDictionary = new Dictionary<string, string>();
+					foreach (var dic in entry)
+					{
+						string strAllow = dic.Value.Length > AuthyHelpers.MAX_STRING_SIZE ? dic.Value.Substring(0, AuthyHelpers.MAX_STRING_SIZE) : dic.Value;
+						if (dic.Key.Equals("res"))
+						{
+							tempDictionary.Add("res", strAllow);
+						}
+						else if (dic.Key.Equals("url"))
+						{
+							tempDictionary.Add("url", strAllow);
+						}
+						else {
+							OneTouchResult otr = new OneTouchResult();
+							otr.Message = "Invalid logos dict keys. Expected \'res\' or \'url\'";
+							return otr;
+						}
+						request.Add("logos[][" + dic.Key + "]", strAllow);
+					}
+					indice++;
+					tempList.Add(tempDictionary);
+				}
+				logos = tempList;
+			}
+
 			var url = string.Format("{0}/onetouch/json/users/{1}/approval_requests", this.baseUrl, userId);
 			return this.Execute<OneTouchResult>(client =>
 			{
@@ -174,6 +232,27 @@ namespace Authy.Net
 
 				OneTouchResult apiResponse = JsonConvert.DeserializeObject<OneTouchResult>(textResponse);
 				apiResponse.RawResponse = textResponse;
+
+				return apiResponse;
+			});
+		}
+
+		/// <summary>
+		/// Gets the approval status.
+		/// </summary>
+		/// <returns>The approval status.</returns>
+		/// <param name="uuid">UUID.</param>
+		/// <param name="force">If set to <c>true</c> force.</param>
+		public OneTouchResult GetApprovalStatus(string uuid, bool force = false)
+		{
+			var url = string.Format("{0}/onetouch/json/approval_requests/{1}?api_key={2}{3}", this.baseUrl, uuid, this.apiKey, force ? "&force=true" : string.Empty);
+			return this.Execute<OneTouchResult>(client =>
+			{
+				var response = client.DownloadString(url);
+
+				OneTouchResult apiResponse = JsonConvert.DeserializeObject<OneTouchResult>(response);
+				apiResponse.Status = AuthyStatus.Success;
+				apiResponse.RawResponse = response;
 
 				return apiResponse;
 			});
