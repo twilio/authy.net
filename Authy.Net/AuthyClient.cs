@@ -167,6 +167,7 @@ namespace Authy.Net
 		public OneTouchResult OneTouch(string userId, string message, Dictionary<string, string> details = null, Dictionary<string, string> hidden_details = null, List<Dictionary<string, string>> logos = null, float secondToExpire = 86400)
 		{
 			OneTouchResult otr = new OneTouchResult();
+			message = message.Length > AuthyHelpers.MAX_STRING_SIZE ? message.Substring(0, AuthyHelpers.MAX_STRING_SIZE) : message;
 			userId = AuthyHelpers.SanitizeNumber(userId);
 			if (message.Length == 0)
 			{
@@ -178,8 +179,6 @@ namespace Authy.Net
 			o.Add("api_key", this.apiKey);
 			o.Add("message", message);
 			o.Add("seconds_to_expire", secondToExpire.ToString());
-
-			message = message.Length > AuthyHelpers.MAX_STRING_SIZE ? message.Substring(0, AuthyHelpers.MAX_STRING_SIZE) : message;
 
 			if (details != null)
 			{
@@ -246,41 +245,7 @@ namespace Authy.Net
 
 				return apiResponse;
 			}, url);
-			//try
-			//{
-				//var webAddr = url;
-				//var httpWebRequest = (HttpWebRequest)WebRequest.Create(webAddr);
-				//httpWebRequest.ContentType = "application/json; charset=utf-8";
-				//httpWebRequest.Method = "POST";
-				
-			//}
-			//catch (WebException webex)
-			//{
-			//	var response = webex.Response.GetResponseStream();
 
-			//	string body;
-			//	using (var reader = new StreamReader(response))
-			//	{
-			//		body = reader.ReadToEnd();
-			//	}
-
-			//	OneTouchResult result = JsonConvert.DeserializeObject<OneTouchResult>(body);
-
-			//	switch (((HttpWebResponse)webex.Response).StatusCode)
-			//	{
-			//		case HttpStatusCode.ServiceUnavailable:
-			//			result.Status = AuthyStatus.ServiceUnavailable;
-			//			break;
-			//		case HttpStatusCode.Unauthorized:
-			//			result.Status = AuthyStatus.Unauthorized;
-			//			break;
-			//		default:
-			//		case HttpStatusCode.BadRequest:
-			//			result.Status = AuthyStatus.BadRequest;
-			//			break;
-			//	}
-			//	return result;
-			//}
 		}
 
 		/// <summary>

@@ -73,6 +73,16 @@ namespace Authy.Net
 			return CryptographicBuffer.EncodeToBase64String(hash);
 		}
 
+
+		/// <summary>
+		/// Validates the signature.
+		/// </summary>
+		/// <returns><c>true</c>, if signature was validated, <c>false</c> otherwise.</returns>
+		/// <param name="parameters">Parameters.</param>
+		/// <param name="headers">Headers.</param>
+		/// <param name="method">Method.</param>
+		/// <param name="url">URL.</param>
+		/// <param name="authyToken">Authy token.</param>
 		public static bool ValidateSignature(Dictionary<string, string> parameters, NameValueCollection headers, string method, string url, string authyToken)
 		{
 			StringBuilder sb = new StringBuilder(headers.Get("X-Authy-Signature-Nonce"))
@@ -87,6 +97,11 @@ namespace Authy.Net
 			return signature.Equals(headers.Get("X-Authy-Signature"));
 		}
 
+		/// <summary>
+		/// Maps to query.
+		/// </summary>
+		/// <returns>The to query.</returns>
+		/// <param name="map">Map.</param>
 		public static string MapToQuery(Dictionary<string, string> map)
 		{
 
