@@ -155,7 +155,7 @@ namespace Testing {
 			hidden_details.Add("ip_address","192.168.1.1");
 			var logos = new List<Dictionary<string,string>>();
 			logos.Add(new Dictionary<string, string> { { "res", "default" }, { "url", "https://www.microsoft.com/net/images/VS-checkmark.png" } });
-			//logos.Add(new Dictionary<string, string> { { "res", "med" }    , { "url", "https://www.microsoft.com/net/images/VS-checkmark.png" } });
+			logos.Add(new Dictionary<string, string> { { "res", "med" }    , { "url", "https://www.microsoft.com/net/images/VS-checkmark.png" } });
 			var client = this.ValidAuthyClient;
 			var result = client.OneTouch("30144611","Login requested by X",details,hidden_details,logos);
 			Assert.AreEqual(result.Success, true);

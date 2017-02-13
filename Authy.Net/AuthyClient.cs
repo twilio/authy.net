@@ -166,43 +166,37 @@ namespace Authy.Net
 		/// <param name="secondToExpire">Second to expire.</param>
 		public OneTouchResult OneTouch(string userId, string message, Dictionary<string, string> details = null, Dictionary<string, string> hidden_details = null, List<Dictionary<string, string>> logos = null, float secondToExpire = 86400)
 		{
+			OneTouchResult otr = new OneTouchResult();
 			userId = AuthyHelpers.SanitizeNumber(userId);
-			if (message.Length==0)
+			if (message.Length == 0)
 			{
-				OneTouchResult otr = new OneTouchResult();
 				otr.Message = "Message cannot be blank";
 				return otr;
 			}
 
+			JObject o = new JObject();
+			o.Add("api_key", this.apiKey);
+			o.Add("message", message);
+			o.Add("seconds_to_expire", secondToExpire.ToString());
+
 			message = message.Length > AuthyHelpers.MAX_STRING_SIZE ? message.Substring(0, AuthyHelpers.MAX_STRING_SIZE) : message;
 
-			var request = new System.Collections.Specialized.NameValueCollection()
-			{
-				{"api_key", this.apiKey},
-				{"message", message},
-				{"seconds_to_expire", secondToExpire.ToString()}
-			};
 			if (details != null)
 			{
-				foreach (var entry in details)
-				{
-					request.Add("details["+entry.Key+"]",entry.Value);
-				}
+				o.Add("details", JObject.FromObject(details));
 			}
 			if (hidden_details != null)
 			{
-				foreach (var entry in hidden_details)
-				{
-					request.Add("hidden_details[" + entry.Key + "]", entry.Value);
-				}
+				o.Add("hidden_details", JObject.FromObject(hidden_details));
 			}
 			if (logos != null && logos.ToArray().Length != 0)
 			{
 				Dictionary<string, string> tempDictionary;
-				List<Dictionary<string, string>> tempList = new List<Dictionary<string,string>>();
+				List<Dictionary<string, string>> tempList = new List<Dictionary<string, string>>();
 				int indice = 0;
-				foreach (var entry in logos) {
-					
+				foreach (var entry in logos)
+				{
+
 					tempDictionary = new Dictionary<string, string>();
 					foreach (var dic in entry)
 					{
@@ -216,29 +210,77 @@ namespace Authy.Net
 							tempDictionary.Add("url", strAllow);
 						}
 						else {
-							OneTouchResult otr = new OneTouchResult();
 							otr.Message = "Invalid logos dict keys. Expected \'res\' or \'url\'";
 							return otr;
 						}
-						request.Add("logos[][" + dic.Key + "]", strAllow);
 					}
 					indice++;
 					tempList.Add(tempDictionary);
 				}
 				logos = tempList;
+				o.Add("logos", JArray.FromObject(logos.ToArray()));
 			}
 
 			var url = string.Format("{0}/onetouch/json/users/{1}/approval_requests", this.baseUrl, userId);
-			return this.Execute<OneTouchResult>(client =>
-			{
-				var response = client.UploadValues(url, request);
-				var textResponse = Encoding.ASCII.GetString(response);
 
-				OneTouchResult apiResponse = JsonConvert.DeserializeObject<OneTouchResult>(textResponse);
-				apiResponse.RawResponse = textResponse;
+			var jsonData = JsonConvert.SerializeObject(o);
+			return this.ExecuteWebRequest<OneTouchResult>(client =>
+			{
+				using (var streamWriter = new StreamWriter(client.GetRequestStream()))
+				{
+					string json = jsonData;
+
+					streamWriter.Write(json);
+					streamWriter.Flush();
+				}
+
+				var httpResponse = (HttpWebResponse)client.GetResponse();
+				string body = "";
+				using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+				{
+					body = streamReader.ReadToEnd();
+				}
+
+				OneTouchResult apiResponse = JsonConvert.DeserializeObject<OneTouchResult>(body);
+				apiResponse.RawResponse = body;
 
 				return apiResponse;
-			});
+			}, url);
+			//try
+			//{
+				//var webAddr = url;
+				//var httpWebRequest = (HttpWebRequest)WebRequest.Create(webAddr);
+				//httpWebRequest.ContentType = "application/json; charset=utf-8";
+				//httpWebRequest.Method = "POST";
+				
+			//}
+			//catch (WebException webex)
+			//{
+			//	var response = webex.Response.GetResponseStream();
+
+			//	string body;
+			//	using (var reader = new StreamReader(response))
+			//	{
+			//		body = reader.ReadToEnd();
+			//	}
+
+			//	OneTouchResult result = JsonConvert.DeserializeObject<OneTouchResult>(body);
+
+			//	switch (((HttpWebResponse)webex.Response).StatusCode)
+			//	{
+			//		case HttpStatusCode.ServiceUnavailable:
+			//			result.Status = AuthyStatus.ServiceUnavailable;
+			//			break;
+			//		case HttpStatusCode.Unauthorized:
+			//			result.Status = AuthyStatus.Unauthorized;
+			//			break;
+			//		default:
+			//		case HttpStatusCode.BadRequest:
+			//			result.Status = AuthyStatus.BadRequest;
+			//			break;
+			//	}
+			//	return result;
+			//}
 		}
 
 		/// <summary>
@@ -309,6 +351,57 @@ namespace Authy.Net
                 client.Dispose();
             }
         }
+
+		private TResult ExecuteWebRequest<TResult>(Func<WebRequest, TResult> execute, string url)
+			where TResult : AuthyResult, new()
+		{
+			var client = (HttpWebRequest)WebRequest.Create(url);
+			var libraryVersion = AuthyHelpers.GetVersion();
+			var runtimeVersion = AuthyHelpers.GetSystemInfo();
+			var userAgent = string.Format("AuthyNet/{0} ({1})", libraryVersion, runtimeVersion);
+
+			// Set a custom user agent
+			client.UserAgent = userAgent;
+
+			client.ContentType = "application/json; charset=utf-8";
+			client.Method = "POST";
+			try
+			{
+				return execute(client);
+			}
+			catch (WebException webex)
+			{
+				var response = webex.Response.GetResponseStream();
+
+				string body;
+				using (var reader = new StreamReader(response))
+				{
+					body = reader.ReadToEnd();
+				}
+
+				TResult result = JsonConvert.DeserializeObject<TResult>(body);
+
+				switch (((HttpWebResponse)webex.Response).StatusCode)
+				{
+					case HttpStatusCode.ServiceUnavailable:
+						result.Status = AuthyStatus.ServiceUnavailable;
+						break;
+					case HttpStatusCode.Unauthorized:
+						result.Status = AuthyStatus.Unauthorized;
+						break;
+					default:
+					case HttpStatusCode.BadRequest:
+						result.Status = AuthyStatus.BadRequest;
+						break;
+				}
+				return result;
+			}
+			finally
+			{
+				//
+			}
+
+		}
 
         private string baseUrl
         {
