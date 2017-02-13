@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace Authy.Net
 {
@@ -38,13 +39,14 @@ namespace Authy.Net
         /// <param name="cellPhoneNumber">Cell phone number</param>
         /// <param name="countryCode">Country code</param>
         /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
-        public RegisterUserResult RegisterUser(string email, string cellPhoneNumber, int countryCode = 1)
+        public RegisterUserResult RegisterUser(string email, string cellPhoneNumber, int countryCode = 1, bool sendInstallLinkViaSms=false)
         {
             var request = new System.Collections.Specialized.NameValueCollection()
             {
                 {"user[email]", email},
                 {"user[cellphone]",cellPhoneNumber},
-                {"user[country_code]",countryCode.ToString()}
+                {"user[country_code]",countryCode.ToString()},
+				{"user[send_install_link_via_sms]", sendInstallLinkViaSms.ToString() }
             };
 
             var url = string.Format("{0}/protected/json/users/new?api_key={1}", this.baseUrl, this.apiKey);
@@ -171,6 +173,8 @@ namespace Authy.Net
 				otr.Message = "Message cannot be blank";
 				return otr;
 			}
+
+			message = message.Length > AuthyHelpers.MAX_STRING_SIZE ? message.Substring(0, AuthyHelpers.MAX_STRING_SIZE) : message;
 
 			var request = new System.Collections.Specialized.NameValueCollection()
 			{

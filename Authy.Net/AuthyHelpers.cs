@@ -31,7 +31,7 @@ namespace Authy.Net
         public static bool TokenIsValid(string token) {
             token = SanitizeNumber(token);
 
-            if (token.Length < 6 || token.Length > 10) {
+            if (token.Length < 6 || token.Length > 12) {
                 return false;
             }
 
