@@ -72,6 +72,8 @@
     <Compile Include="VerifyTokenResult.cs" />
     <Compile Include="AuthyHelpers.cs" />
     <Compile Include="OneTouchResult.cs" />
+    <Compile Include="OneTouchBuilder.cs" />
+    <Compile Include="ApprobalRequestParams.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Authy.Net.nuspec" />

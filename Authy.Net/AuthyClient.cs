@@ -159,70 +159,18 @@ namespace Authy.Net
 		/// </summary>
 		/// <returns>The touch.</returns>
 		/// <param name="userId">User identifier.</param>
-		/// <param name="details">Details.</param>
-		/// <param name="hidden_details">Hidden details.</param>
-		/// <param name="logos">Logos.</param>
-		/// <param name="message">Message.</param>
-		/// <param name="secondToExpire">Second to expire.</param>
-		public OneTouchResult OneTouch(string userId, string message, Dictionary<string, string> details = null, Dictionary<string, string> hidden_details = null, List<Dictionary<string, string>> logos = null, float secondToExpire = 86400)
+		/// <param name="parameters">Parameters.</param>
+		public OneTouchResult OneTouch(string userId, ApprobalRequestParams parameters)
 		{
+			JObject obj;
 			OneTouchResult otr = new OneTouchResult();
-			message = message.Length > AuthyHelpers.MAX_STRING_SIZE ? message.Substring(0, AuthyHelpers.MAX_STRING_SIZE) : message;
 			userId = AuthyHelpers.SanitizeNumber(userId);
-			if (message.Length == 0)
-			{
-				otr.Message = "Message cannot be blank";
-				return otr;
-			}
 
-			JObject o = new JObject();
-			o.Add("api_key", this.apiKey);
-			o.Add("message", message);
-			o.Add("seconds_to_expire", secondToExpire.ToString());
-
-			if (details != null)
-			{
-				o.Add("details", JObject.FromObject(details));
-			}
-			if (hidden_details != null)
-			{
-				o.Add("hidden_details", JObject.FromObject(hidden_details));
-			}
-			if (logos != null && logos.ToArray().Length != 0)
-			{
-				Dictionary<string, string> tempDictionary;
-				List<Dictionary<string, string>> tempList = new List<Dictionary<string, string>>();
-				int indice = 0;
-				foreach (var entry in logos)
-				{
-
-					tempDictionary = new Dictionary<string, string>();
-					foreach (var dic in entry)
-					{
-						string strAllow = dic.Value.Length > AuthyHelpers.MAX_STRING_SIZE ? dic.Value.Substring(0, AuthyHelpers.MAX_STRING_SIZE) : dic.Value;
-						if (dic.Key.Equals("res"))
-						{
-							tempDictionary.Add("res", strAllow);
-						}
-						else if (dic.Key.Equals("url"))
-						{
-							tempDictionary.Add("url", strAllow);
-						}
-						else {
-							otr.Message = "Invalid logos dict keys. Expected \'res\' or \'url\'";
-							return otr;
-						}
-					}
-					indice++;
-					tempList.Add(tempDictionary);
-				}
-				logos = tempList;
-				o.Add("logos", JArray.FromObject(logos.ToArray()));
-			}
+			obj = parameters.toJObject();
 
 			var url = string.Format("{0}/onetouch/json/users/{1}/approval_requests", this.baseUrl, userId);
 
-			var jsonData = JsonConvert.SerializeObject(o);
+			var jsonData = JsonConvert.SerializeObject(obj);
 			return this.ExecuteWebRequest<OneTouchResult>(client =>
 			{
 				using (var streamWriter = new StreamWriter(client.GetRequestStream()))

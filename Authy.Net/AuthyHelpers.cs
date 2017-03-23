@@ -11,53 +11,55 @@ using System.Net;
 
 namespace Authy.Net
 {
-    public class AuthyHelpers
-    {
+	public class AuthyHelpers
+	{
+		///<summary>
+		/// Remove all non-digits from the string
+		/// </summary>
+		///<param name="value">The string to sanitize</param>
+		public static string SanitizeNumber(string value)
+		{
+			return Regex.Replace(value, @"\D", string.Empty);
+		}
 
-		public static int MAX_STRING_SIZE = 200;
+		///<summary>
+		/// Validate the token entered by the user
+		/// </summary>
+		/// <param name="token">The token to validate</param>
+		public static bool TokenIsValid(string token)
+		{
+			token = SanitizeNumber(token);
 
-        ///<summary>
-        /// Remove all non-digits from the string
-        /// </summary>
-        ///<param name="value">The string to sanitize</param>
-        public static string SanitizeNumber(string value) {
-            return Regex.Replace(value, @"\D", string.Empty);
-        }
+			if (token.Length < 6 || token.Length > 12)
+			{
+				return false;
+			}
 
-        ///<summary>
-        /// Validate the token entered by the user
-        /// </summary>
-        /// <param name="token">The token to validate</param>
-        public static bool TokenIsValid(string token) {
-            token = SanitizeNumber(token);
+			return true;
+		}
 
-            if (token.Length < 6 || token.Length > 12) {
-                return false;
-            }
+		/// <summary>
+		/// Gets the version of the Assembly.
+		/// </summary>
+		/// <returns>The version.</returns>
+		public static string GetVersion()
+		{
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+			string version = fvi.ProductVersion;
 
-            return true;
-        }
+			return version;
+		}
 
-        /// <summary>
-        /// Gets the version of the Assembly.
-        /// </summary>
-        /// <returns>The version.</returns>
-        public static string GetVersion() {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-            string version = fvi.ProductVersion;
-
-            return version;
-        }
-
-        /// <summary>
-        /// Get the system information
-        /// </summary>
-        /// <returns>The .NET version</returns>
-        public static string GetSystemInfo() {
-            var runtimeVersion = Environment.Version;
-            return string.Format("Runtime v{0}", runtimeVersion);
-        }
+		/// <summary>
+		/// Get the system information
+		/// </summary>
+		/// <returns>The .NET version</returns>
+		public static string GetSystemInfo()
+		{
+			var runtimeVersion = Environment.Version;
+			return string.Format("Runtime v{0}", runtimeVersion);
+		}
 
 		/// <summary>
 		/// Hmacsha256 the specified key and value.
@@ -136,6 +138,12 @@ namespace Authy.Net
 
 		}
 
+		/// <summary>
+		/// Extract the specified properties of obj and subobj.
+		/// </summary>
+		/// <param name="pre">Pre.</param>
+		/// <param name="obj">Object.</param>
+		/// <param name="map">Map.</param>
 		public static void Extract(string pre, object obj, Dictionary<string, string> map)
 		{
 			Dictionary<string, object> json = (Dictionary<string, object>)obj;
@@ -160,6 +168,6 @@ namespace Authy.Net
 
 			}
 		}
-    }
+	}
 }
 
