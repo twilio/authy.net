@@ -10,7 +10,6 @@ namespace Authy.Net
 	/// </summary>
 	public class OneTouchBuilder
 	{
-		//private JObject parameters;
 		public static int MAX_STRING_SIZE = 200;
 		public static string MESSAGE_ERROR = "Param message cannot be null or empty  and it's length needs to be less than 200 max characters.";
 		public static string AUTHYID_ERROR = "Param authyId cannot be null and should be the id of the user that will be authorized using OneTouch.";
@@ -23,16 +22,6 @@ namespace Authy.Net
 		public static string LOGO_ERROR_NO_KEYS = " 'res' and 'url' keys are not present.";
 		public static int MAXSIZEURL = 500;
 		ApprobalRequestParams parameters;
-
-		/// <summary>
-		/// Resolution.
-		/// </summary>
-		public enum Resolution{
-			Default,
-			Low,
-			Medium,
-			High
-		}
 
 
 		/// <summary>
@@ -51,7 +40,6 @@ namespace Authy.Net
 		/// <param name="apiKey">API key.</param>
 		public OneTouchBuilder ApiKey(String apiKey)
 		{
-			//parameters.Add("api_key", apiKey);
 			parameters.ApiKey = apiKey;
 			return this;
 		}
@@ -67,7 +55,6 @@ namespace Authy.Net
 				throw new OneTouchBuilderException(MESSAGE_ERROR);
 			}
 
-			//parameters.Add("message", message);
 			parameters.Message = message;
 			return this;
 		}
@@ -78,7 +65,6 @@ namespace Authy.Net
 		/// <param name="seconds">Seconds.</param>
 		public OneTouchBuilder SecondsToExpire(String seconds)
 		{
-			//parameters.Add("seconds_to_expire", seconds);
 			parameters.SecondsToExpire = seconds;
 			return this;
 		}
@@ -101,7 +87,6 @@ namespace Authy.Net
 					throw new OneTouchBuilderException(HIDDEN_DETAIL_ERROR);
 				}
 			}
-			//parameters.Add("hidden_details", JObject.FromObject(hiddenDetails));
 			parameters.HiddenDetails = hiddenDetails;
 			return this;
 		}
@@ -124,7 +109,6 @@ namespace Authy.Net
 					throw new OneTouchBuilderException(DETAIL_ERROR);
 				}
 			}
-			//parameters.Add("details", JObject.FromObject(details));
 			parameters.Details = details;
 			return this;
 		}
@@ -173,7 +157,6 @@ namespace Authy.Net
 				}
 			}
 
-			//parameters.Add("logos", JArray.FromObject(logos.ToArray()));
 			parameters.Logos = logos;
 			return this;
 		}
@@ -192,20 +175,34 @@ namespace Authy.Net
 		}
 	}
 
+	/// <summary>
+	/// One touch builder exception.
+	/// </summary>
 	public class OneTouchBuilderException : Exception
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:Authy.Net.OneTouchBuilderException"/> class.
+		/// </summary>
 		public OneTouchBuilderException()
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:Authy.Net.OneTouchBuilderException"/> class.
+		/// </summary>
+		/// <param name="message">Message.</param>
 		public OneTouchBuilderException(string message): base(message)
 		{
 			
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:Authy.Net.OneTouchBuilderException"/> class.
+		/// </summary>
+		/// <param name="message">Message.</param>
+		/// <param name="inner">Inner.</param>
 		public OneTouchBuilderException(string message, Exception inner) : base(message, inner)
 		{
-
 		}
 	}
 }

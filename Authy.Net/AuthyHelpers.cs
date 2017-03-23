@@ -11,6 +11,9 @@ using System.Net;
 
 namespace Authy.Net
 {
+	/// <summary>
+	/// Authy helpers.
+	/// </summary>
 	public class AuthyHelpers
 	{
 		///<summary>
