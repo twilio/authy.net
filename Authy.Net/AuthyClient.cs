@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace Authy.Net
 {
@@ -31,20 +32,22 @@ namespace Authy.Net
             this.test = test;
         }
 
-        /// <summary>
-        /// Register a user
-        /// </summary>
-        /// <param name="email">Email address</param>
-        /// <param name="cellPhoneNumber">Cell phone number</param>
-        /// <param name="countryCode">Country code</param>
-        /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
-        public RegisterUserResult RegisterUser(string email, string cellPhoneNumber, int countryCode = 1)
+		/// <summary>
+		/// Registers the user.
+		/// </summary>
+		/// <returns>The user.</returns>
+		/// <param name="email">Email.</param>
+		/// <param name="cellPhoneNumber">Cell phone number.</param>
+		/// <param name="countryCode">Country code.</param>
+		/// <param name="sendInstallLinkViaSms">If set to <c>true</c> send install link via sms.</param>
+        public RegisterUserResult RegisterUser(string email, string cellPhoneNumber, int countryCode = 1, bool sendInstallLinkViaSms=false)
         {
             var request = new System.Collections.Specialized.NameValueCollection()
             {
                 {"user[email]", email},
                 {"user[cellphone]",cellPhoneNumber},
-                {"user[country_code]",countryCode.ToString()}
+                {"user[country_code]",countryCode.ToString()},
+				{"user[send_install_link_via_sms]", sendInstallLinkViaSms.ToString() }
             };
 
             var url = string.Format("{0}/protected/json/users/new?api_key={1}", this.baseUrl, this.apiKey);
@@ -152,6 +155,73 @@ namespace Authy.Net
             });
         }
 
+		/// <summary>
+		/// Ones the touch.
+		/// </summary>
+		/// <returns>The touch.</returns>
+		/// <param name="userId">User identifier.</param>
+		/// <param name="parameters">Parameters.</param>
+		public OneTouchResult OneTouch(string userId, ApprobalRequestParams parameters)
+		{
+			JObject obj;
+			userId = AuthyHelpers.SanitizeNumber(userId);
+
+			obj = parameters.toJObject();
+
+			var url = string.Format("{0}/onetouch/json/users/{1}/approval_requests", this.baseUrl, userId);
+
+			var jsonData = JsonConvert.SerializeObject(obj);
+			return this.ExecuteWebRequest<OneTouchResult>(client =>
+			{
+				using (var streamWriter = new StreamWriter(client.GetRequestStream()))
+				{
+					string json = jsonData;
+
+					streamWriter.Write(json);
+					streamWriter.Flush();
+				}
+
+				var httpResponse = (HttpWebResponse)client.GetResponse();
+				string body = "";
+				using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+				{
+					body = streamReader.ReadToEnd();
+				}
+
+				OneTouchResult apiResponse = JsonConvert.DeserializeObject<OneTouchResult>(body);
+				apiResponse.RawResponse = body;
+
+				return apiResponse;
+			}, url);
+
+		}
+
+		/// <summary>
+		/// Gets the approval status.
+		/// </summary>
+		/// <returns>The approval status.</returns>
+		/// <param name="uuid">UUID.</param>
+		/// <param name="force">If set to <c>true</c> force.</param>
+		public OneTouchResult GetApprovalStatus(string uuid, bool force = false)
+		{
+			var url = string.Format("{0}/onetouch/json/approval_requests/{1}?api_key={2}{3}", this.baseUrl, uuid, this.apiKey, force ? "&force=true" : string.Empty);
+			return this.Execute<OneTouchResult>(client =>
+			{
+				var response = client.DownloadString(url);
+
+				OneTouchResult apiResponse = JsonConvert.DeserializeObject<OneTouchResult>(response);
+				apiResponse.Status = AuthyStatus.Success;
+				apiResponse.RawResponse = response;
+
+				return apiResponse;
+			});
+		}
+
+		/// <summary>
+		/// Execute the specified execute.
+		/// </summary>
+		/// <param name="execute">Execute.</param>
+		/// <typeparam name="TResult">The 1st type parameter.</typeparam>
         private TResult Execute<TResult>(Func<WebClient, TResult> execute)
             where TResult : AuthyResult, new()
         {
@@ -200,6 +270,68 @@ namespace Authy.Net
             }
         }
 
+		/// <summary>
+		/// Executes the web request.
+		/// </summary>
+		/// <returns>The web request.</returns>
+		/// <param name="execute">Execute.</param>
+		/// <param name="url">URL.</param>
+		/// <typeparam name="TResult">The 1st type parameter.</typeparam>
+		private TResult ExecuteWebRequest<TResult>(Func<WebRequest, TResult> execute, string url)
+			where TResult : AuthyResult, new()
+		{
+			var client = (HttpWebRequest)WebRequest.Create(url);
+			var libraryVersion = AuthyHelpers.GetVersion();
+			var runtimeVersion = AuthyHelpers.GetSystemInfo();
+			var userAgent = string.Format("AuthyNet/{0} ({1})", libraryVersion, runtimeVersion);
+
+			// Set a custom user agent
+			client.UserAgent = userAgent;
+
+			client.ContentType = "application/json; charset=utf-8";
+			client.Method = "POST";
+			try
+			{
+				return execute(client);
+			}
+			catch (WebException webex)
+			{
+				var response = webex.Response.GetResponseStream();
+
+				string body;
+				using (var reader = new StreamReader(response))
+				{
+					body = reader.ReadToEnd();
+				}
+
+				TResult result = JsonConvert.DeserializeObject<TResult>(body);
+
+				switch (((HttpWebResponse)webex.Response).StatusCode)
+				{
+					case HttpStatusCode.ServiceUnavailable:
+						result.Status = AuthyStatus.ServiceUnavailable;
+						break;
+					case HttpStatusCode.Unauthorized:
+						result.Status = AuthyStatus.Unauthorized;
+						break;
+					default:
+					case HttpStatusCode.BadRequest:
+						result.Status = AuthyStatus.BadRequest;
+						break;
+				}
+				return result;
+			}
+			finally
+			{
+				//
+			}
+
+		}
+
+		/// <summary>
+		/// Gets the base URL.
+		/// </summary>
+		/// <value>The base URL.</value>
         private string baseUrl
         {
             get { return this.test ? "http://sandbox-api.authy.com" : "https://api.authy.com"; }
